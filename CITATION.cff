@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+type: software
+title: "OLIVE: Online Latent Inference from Variable Evidence"
+message: "If you use this software, please cite it as below."
+authors:
+  - name: "TBD"
+repository-code: "https://github.com/TODO/OLIVE"
+license: TBD
+date-released: 2026-10-01
+keywords:
+  - "Bayesian inference"
+  - "online learning"
+  - "EEG"
+  - "user modeling"
+  - "interactive systems"
+references:
+  - type: conference-paper
+    title: "OLIVE: Online Latent Inference from Variable Evidence"
+    authors:
+      - name: "TBD"
+    conference:
+      name: "UIST 2026"
+    year: 2026
+    notes: "DOI/venue pending publication"

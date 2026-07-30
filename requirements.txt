@@ -1,0 +1,3 @@
+datasets>=2.19
+pyarrow
+# other deps: see repo-root requirements.txt

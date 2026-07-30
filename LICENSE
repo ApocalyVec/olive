@@ -1,0 +1,11 @@
+License TBD
+
+This is a placeholder license file pending author confirmation.
+
+Intended license structure:
+- Code (Python, scripts, server): MIT License
+- Dataset (FRP epochs, eeg_priors): CC-BY-4.0 (Creative Commons Attribution 4.0 International)
+
+Please confirm the final license choice and update this file before public release.
+
+Contact: leo@ledai.build
