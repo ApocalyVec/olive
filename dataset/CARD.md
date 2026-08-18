@@ -1,14 +1,33 @@
-# OLIVE Release FRP Dataset — Card
+---
+pretty_name: OLIVE FRP Dataset
+license: cc-by-4.0
+tags:
+- eeg
+- fixation-related-potentials
+- pupillometry
+- eye-tracking
+- xr
+- bci
+- attention
+size_categories:
+- 10K<n<100K
+configs:
+- config_name: default
+  data_files:
+  - split: train
+    path: data/frp_dataset.parquet
+---
+
+# OLIVE FRP Dataset
 
 ## What this is
 
-Per-fixation, fixation-related-potential (FRP) examples assembled from the OLIVE
+Per-fixation, fixation-related-potential (FRP) examples from the OLIVE
 Wingman / SpaceShooter user studies (US1 offline simulation, US2 live deployment,
-US3 silent target-switch), for the release cohort of 27
-participants (`release.common.cohort.RELEASE_SUBJECTS`). Assembled by
-`release/dataset/export_hf.py::build_examples`, which composes the already-committed
-Tasks 2.1-2.4 modules (epoch extraction, p_target regeneration, saccade derivation,
-condition/block metadata) without reimplementing any of their logic.
+US3 silent target-switch), for the release cohort of 27 participants. Each example
+pairs a fixation-locked EEG epoch and pupil epoch with its target label,
+incoming-saccade metadata, per-fixation implicit-evidence probability, and
+condition and block information.
 
 ## Fields (one row per fixation-locked epoch)
 
