@@ -30,10 +30,10 @@ OLIVE is an online Bayesian inference system that fuses explicit behavioral sign
   - `out/coverage.csv`: Per-subject, per-study epoch counts
 
 The default-config FRP dataset covers the **25-subject** release cohort
-(`release.common.cohort.PUBLISHED_SUBJECTS`) with per-fixation EEG+pupil epochs, each
-tagged with a `task` field (`visual_search` or `spaceshooter`) identifying which of the
-two underlying paradigms (US1/US2's Wingman visual search vs. US3's SpaceShooter) the
-fixation was drawn from. A second HF config, `ern`, ships response-locked
+(`release.common.cohort.PUBLISHED_SUBJECTS`) with per-fixation EEG+pupil epochs. A
+`task` field labels each epoch's block as `visual_search` (the calibration phase) or
+`spaceshooter` (gameplay); both occur within every study session (US1/US2/US3 each
+contain both calibration and gameplay blocks). A second HF config, `ern`, ships response-locked
 error-related-negativity epochs as a distinct dataset variant -- see the dataset CARD
 for field-level detail.
 

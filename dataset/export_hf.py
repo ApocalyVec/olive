@@ -69,7 +69,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, Optional
 
-from release.common.cohort import RELEASE_SUBJECTS, PUBLISHED_SUBJECTS
+from release.common.cohort import PUBLISHED_SUBJECTS
 from release.dataset.attach_metadata import block_meta, condition_for, ra_condition_for
 from release.dataset.derive_saccades import incoming_saccade, load_p_streams
 from release.dataset.extract_epochs import iter_epochs
@@ -508,12 +508,16 @@ condition and block information.
 | `condition_ra` | str or None | secondary RA-proposed overlay label; **UNRESOLVED, does not match published tables**, transparency/audit only |
 | `block_idx` | int | 0-indexed block within (subject, study, session); `-1` if not derivable (see caveat) |
 | `difficulty` | int | adaptive difficulty level for `block_idx`, from `meta.jsonl`; `-1` if not found |
+| `task` | str | `visual_search` (calibration blocks, difficulty==-1) or `spaceshooter` (gameplay blocks, difficulty>=0); a per-BLOCK label, not per-study |
 
 `block_idx` caveat: `iter_epochs` does not carry a literal block index field. `run`
 was verified empirically (against on-disk `meta.jsonl`/block-directory counts for
 multiple subjects across us1/us2/us3) to be a 1-indexed running block counter, so
 `block_idx = run - 1` is used. This has not been verified for every subject/session;
-treat `block_idx`/`difficulty` as best-effort, not a guaranteed-exact join.
+treat `block_idx`/`difficulty` as best-effort, not a guaranteed-exact join. `task` is
+derived from `difficulty` (`difficulty == -1` => `visual_search`, else `spaceshooter`)
+and therefore inherits the same best-effort/fallback behavior: a failed metadata
+lookup falls back to `difficulty = -1` => `task = visual_search`.
 
 ## EEG montage and epoch windows
 
