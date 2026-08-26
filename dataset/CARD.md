@@ -24,8 +24,8 @@ configs:
 
 Per-fixation, fixation-related-potential (FRP) examples from the OLIVE
 Wingman / SpaceShooter user studies (US1 offline simulation, US2 live deployment,
-US3 silent target-switch), for the release cohort of 27 participants. Each example
-pairs a fixation-locked EEG epoch and pupil epoch with its target label,
+US3 silent target-switch), for the release cohort of 25 participants.
+Each example pairs a fixation-locked EEG epoch and pupil epoch with its target label,
 incoming-saccade metadata, per-fixation implicit-evidence probability, and
 condition and block information.
 
@@ -87,14 +87,14 @@ treat `block_idx`/`difficulty` as best-effort, not a guaranteed-exact join.
 
 ## Coverage
 
-Built from subjects=[4, 5, 12, 18, 20, 28, 29, 31, 33, 34, 35, 36, 37, 39, 40, 46, 47, 48, 49, 51, 52, 53, 54, 55, 59, 61, 63], studies=['us1', 'us2', 'us3'],
+Built from subjects=[4, 5, 12, 18, 20, 28, 29, 31, 33, 34, 35, 36, 37, 39, 40, 46, 47, 48, 49, 51, 52, 53, 54, 55, 59], studies=['us1', 'us2', 'us3'],
 with_saccades=False.
 
 - Total examples: 58184
-- Target-label rate (`y==1`): 0.5735 (33371 target / 24813 non-target)
-- `p_target` valid (non-NaN): 27445 rows, mean=0.5111; NaN: 30739 rows
-- `p_target_quality` (valid rows): mean=0.7615, range=[0.5375, 0.9018]
-- Subjects with zero examples across all studies: 2 ([61, 63])
+- Target-label rate (`y==1`): 0.4035 (23478 target / 34706 non-target)
+- `p_target` valid (non-NaN): 18246 rows, mean=0.5059; NaN: 39938 rows
+- `p_target_quality` (valid rows): mean=0.7669, range=[0.5375, 0.8851]
+- Subjects with zero examples across all studies: 0 ([])
 - Subjects with >0 examples in at least one study: 25 ([4, 5, 12, 18, 20, 28, 29, 31, 33, 34, 35, 36, 37, 39, 40, 46, 47, 48, 49, 51, 52, 53, 54, 55, 59])
 
 Full per-subject x per-study counts: see `coverage.csv` (same directory as
@@ -127,8 +127,6 @@ this card). Table (subject_id x study, `total` = row sum):
 | 54 | 946 | 0 | 0 | 946 |
 | 55 | 924 | 0 | 0 | 924 |
 | 59 | 798 | 0 | 0 | 798 |
-| 61 | 0 | 0 | 0 | 0 |
-| 63 | 0 | 0 | 0 | 0 |
 
 ## Saccade fields caveat (`with_saccades`)
 
@@ -149,7 +147,7 @@ directory, which can pool fixation events across sessions. See
 
 ## Consent
 
-All participants in `RELEASE_SUBJECTS` provided informed consent under the study's
+All participants in the published cohort provided informed consent under the study's
 IRB protocol for their de-identified physiological (EEG, pupil), behavioral, and
 gaze data to be included in a public research dataset release. No directly
 identifying information (name, contact info, raw video) is included in this export;

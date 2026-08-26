@@ -75,6 +75,13 @@ def _as_scalar_int(v) -> int:
     return int(round(float(np.asarray(v).reshape(-1)[0])))
 
 
+def _decode_y(arr) -> int:
+    # Decode y_raw_encoded one-hot (column order: [y_raw==1, y_raw==2]).
+    # y_raw=1 (non-target) -> [1,0]; y_raw=2 (target) -> [0,1].
+    # Correct decode uses argmax: argmax([1,0])=0, argmax([0,1])=1.
+    return int(np.argmax(np.asarray(arr).reshape(-1)))
+
+
 def _as_scalar_float(v) -> float:
     return float(np.asarray(v).reshape(-1)[0])
 
@@ -295,7 +302,7 @@ def iter_epochs(subject_id: int, study: str) -> Iterator[dict]:
                     pupil = _reshape_signal(
                         rec["pupil_size"], rec.get("pupil_size.shape"), PUPIL_N_CH, PUPIL_N_T_DEFAULT
                     ).astype(np.float32, copy=False)
-                    y = _as_scalar_int(rec["y_raw_encoded"])
+                    y = _decode_y(rec["y_raw_encoded"])
                     item_id = _as_scalar_int(rec["item_id"])
                     run = _as_scalar_int(rec["run"])
                     fix_time_s = _as_scalar_float(rec["fix_time_s"])

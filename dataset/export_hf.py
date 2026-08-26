@@ -15,6 +15,8 @@ reimplemented here):
       block_meta}` -- condition/block metadata
     - `release.common.cohort.RELEASE_SUBJECTS` -- the 27-subject release
       cohort
+    - `release.common.cohort.PUBLISHED_SUBJECTS` -- the 25-subject published
+      cohort (excludes subjects 61 and 63 with zero epochs)
 
 Saccade join (best-effort, OFF by default -- see `with_saccades`)
 -------------------------------------------------------------------
@@ -67,7 +69,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, Optional
 
-from release.common.cohort import RELEASE_SUBJECTS
+from release.common.cohort import RELEASE_SUBJECTS, PUBLISHED_SUBJECTS
 from release.dataset.attach_metadata import block_meta, condition_for, ra_condition_for
 from release.dataset.derive_saccades import incoming_saccade, load_p_streams
 from release.dataset.extract_epochs import iter_epochs
@@ -117,6 +119,7 @@ EXAMPLE_KEYS = [
     "condition_ra",
     "block_idx",
     "difficulty",
+    "task",
 ]
 
 
@@ -288,11 +291,17 @@ def build_examples(
                 if limit is not None and len(examples) >= limit:
                     return examples
 
-                item_dtn = 2 if epoch["y"] == 1 else 1
-                p_target, p_target_quality = p_target_for_epoch(subject_id, item_dtn, idx)
+                if study == "us1":
+                    p_target = float("nan")
+                    p_target_quality = float("nan")
+                else:
+                    item_dtn = 2 if epoch["y"] == 1 else 1
+                    p_target, p_target_quality = p_target_for_epoch(subject_id, item_dtn, idx)
 
                 block_idx = _block_idx_for_epoch(epoch)
-                difficulty = block_meta(subject_id, study, block_idx)["difficulty"]
+                meta = block_meta(subject_id, study, block_idx)
+                difficulty = meta["difficulty"]
+                task = "visual_search" if difficulty == -1 else "spaceshooter"
 
                 if with_saccades:
                     sac = _saccade_for_epoch(subject_id, study, epoch, session_cache, saccade_tolerance_s)
@@ -322,6 +331,7 @@ def build_examples(
                         "condition_ra": condition_ra,
                         "block_idx": block_idx,
                         "difficulty": difficulty,
+                        "task": task,
                     }
                 )
 
@@ -469,7 +479,7 @@ configs:
 
 Per-fixation, fixation-related-potential (FRP) examples from the OLIVE
 Wingman / SpaceShooter user studies (US1 offline simulation, US2 live deployment,
-US3 silent target-switch), for the release cohort of {len(RELEASE_SUBJECTS)} participants.
+US3 silent target-switch), for the release cohort of {len(PUBLISHED_SUBJECTS)} participants.
 Each example pairs a fixation-locked EEG epoch and pupil epoch with its target label,
 incoming-saccade metadata, per-fixation implicit-evidence probability, and
 condition and block information.
@@ -566,7 +576,7 @@ directory, which can pool fixation events across sessions. See
 
 ## Consent
 
-All participants in `RELEASE_SUBJECTS` provided informed consent under the study's
+All participants in the published cohort provided informed consent under the study's
 IRB protocol for their de-identified physiological (EEG, pupil), behavioral, and
 gaze data to be included in a public research dataset release. No directly
 identifying information (name, contact info, raw video) is included in this export;
@@ -608,7 +618,7 @@ def main() -> None:
     args = parser.parse_args()
 
     out_dir = Path(args.out)
-    subjects = RELEASE_SUBJECTS
+    subjects = PUBLISHED_SUBJECTS
     studies = list(STUDIES)
 
     examples = build_examples(subjects, studies, limit=args.limit, with_saccades=args.with_saccades)

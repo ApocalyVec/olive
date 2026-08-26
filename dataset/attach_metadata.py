@@ -67,9 +67,11 @@ def ra_condition_for(subject_id: int) -> str | None:
 
 
 def block_meta(subject_id: int, study: str, block_idx: int) -> dict:
-    """Read block metadata (difficulty, etc) from meta.jsonl.
+    """Read block metadata (difficulty, block_marker) from meta.jsonl.
 
-    Path: ~/wingman/<sid>/<study>/<block_idx>/meta.jsonl
+    Paths checked:
+      - ~/wingman/<sid>/<study>/<block_idx>/meta.jsonl (common layout)
+      - ~/wingman/<sid>/<study>*/<session>/<block_idx>/meta.jsonl (session-subdir layout)
 
     Args:
         subject_id: Participant ID (e.g., 4).
@@ -77,8 +79,8 @@ def block_meta(subject_id: int, study: str, block_idx: int) -> dict:
         block_idx: Block index (e.g., 0, 1, 2, ...).
 
     Returns:
-        dict with 'difficulty' key (int, default -1 if missing/not found).
-        Returns {'difficulty': -1} if file not found or parsing fails.
+        dict with 'difficulty' (int, default -1) and 'block_marker' (int, default -1).
+        Returns {'difficulty': -1, 'block_marker': -1} if file not found or parsing fails.
     """
     # Try to find the block directory under a matching study dir.
     # Study dirs may have suffixes, e.g., 'us2', 'us2_e', 'us2_ie', etc.
@@ -86,7 +88,7 @@ def block_meta(subject_id: int, study: str, block_idx: int) -> dict:
 
     # If subject dir doesn't exist, return default.
     if not subj_dir.is_dir():
-        return {"difficulty": -1}
+        return {"difficulty": -1, "block_marker": -1}
 
     # Find all matching study directories (e.g., us2*, us3*).
     study_dirs = sorted(
@@ -94,6 +96,7 @@ def block_meta(subject_id: int, study: str, block_idx: int) -> dict:
     )
 
     # Iterate through matching study dirs and look for block_idx.
+    # First, try direct path: study_dir / block_idx / meta.jsonl
     for study_dir in study_dirs:
         block_dir = study_dir / str(block_idx)
         meta_file = block_dir / "meta.jsonl"
@@ -105,10 +108,39 @@ def block_meta(subject_id: int, study: str, block_idx: int) -> dict:
                     if line:
                         data = json.loads(line)
                         difficulty = data.get("difficulty", -1)
-                        return {"difficulty": int(difficulty)}
+                        block_marker = data.get("block_marker", -1)
+                        return {"difficulty": int(difficulty), "block_marker": int(block_marker)}
             except (OSError, json.JSONDecodeError, ValueError):
                 # File read or JSON parse error; continue to next study dir.
                 pass
 
+    # Second, try session-subdir path: study_dir / <session> / block_idx / meta.jsonl
+    for study_dir in study_dirs:
+        # Iterate through potential session subdirectories (numeric directories)
+        for session_dir in sorted(study_dir.iterdir()):
+            if not session_dir.is_dir():
+                continue
+            # Try to parse as session number; skip if not numeric
+            try:
+                int(session_dir.name)
+            except ValueError:
+                continue
+
+            block_dir = session_dir / str(block_idx)
+            meta_file = block_dir / "meta.jsonl"
+
+            if meta_file.is_file():
+                try:
+                    with meta_file.open() as f:
+                        line = f.readline().strip()
+                        if line:
+                            data = json.loads(line)
+                            difficulty = data.get("difficulty", -1)
+                            block_marker = data.get("block_marker", -1)
+                            return {"difficulty": int(difficulty), "block_marker": int(block_marker)}
+                except (OSError, json.JSONDecodeError, ValueError):
+                    # File read or JSON parse error; continue to next session.
+                    pass
+
     # Not found or error reading all candidate dirs.
-    return {"difficulty": -1}
+    return {"difficulty": -1, "block_marker": -1}

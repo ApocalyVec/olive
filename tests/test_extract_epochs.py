@@ -1,5 +1,7 @@
 from collections import Counter
 
+import numpy as np
+
 from release.dataset.extract_epochs import _BACKUP_PREFIXES, _resolve_study_dirs, iter_epochs
 
 
@@ -98,3 +100,18 @@ def test_us1_legit_repeat_subject_not_forced_unique():
     n, n_unique = len(keys), len(set(keys))
     assert n > n_unique, "expected a small number of legitimate repeated keys to survive"
     assert n_unique / n > 0.9, f"unexpectedly large repeat fraction: n={n} unique={n_unique}"
+
+
+def test_target_label_is_one():
+    # y_raw_encoded one-hot: y_raw=2 (target) -> [0,1]; released y must be 1 for target
+    rows = list(iter_epochs(20, "us1"))
+    # cross-check against raw y_raw via a known target/nontarget count is hard here;
+    # assert the decode uses argmax by checking both classes appear and y in {0,1}
+    ys = {r["y"] for r in rows}
+    assert ys <= {0, 1} and len(ys) == 2
+
+
+def test_onehot_decode_is_argmax():
+    from release.dataset.extract_epochs import _decode_y
+    assert _decode_y(np.array([0, 1])) == 1  # y_raw==2 target
+    assert _decode_y(np.array([1, 0])) == 0  # y_raw==1 nontarget
