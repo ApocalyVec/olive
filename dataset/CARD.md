@@ -16,6 +16,10 @@ configs:
   data_files:
   - split: train
     path: data/frp_dataset.parquet
+- config_name: ern
+  data_files:
+  - split: train
+    path: data/ern.parquet
 ---
 
 # OLIVE FRP Dataset
@@ -170,3 +174,101 @@ IRB before public release).
   year      = {2026},
 }
 ```
+
+## ERN variant
+
+A second HuggingFace config (`ern`), loadable via
+`load_dataset("ApocalyVec/olive-frp", "ern")`, of per-shot response-locked
+ERN (error-related negativity) epochs -- distinct from the fixation-locked
+FRP epochs in the `default` config above.
+
+### What this is
+
+One row per in-game shot event (enemy hit = correct, friendly-fire hit =
+error) from the OLIVE Wingman / SpaceShooter user studies (US1, US2, US3),
+for the release cohort of 25 participants. Each row
+is a single-trial, response-locked EEG epoch around the shot event, labeled
+correct/error.
+
+### Fields (one row per shot event)
+
+| field | type | description |
+|---|---|---|
+| `subject_id` | int | participant id |
+| `study` | str | `us1` / `us2` / `us3` |
+| `session` | str | recording-session `.p` file stem |
+| `eeg` | float32[20, 205] | response-locked EEG epoch, uV, see window below |
+| `label` | int (0/1) | `0` = correct (enemy hit), `1` = error (friendly-fire hit) |
+| `shot_time` | float | LSL timestamp of the shot event |
+| `montage` | list[str] | B-Alert channel names, in `eeg` row order |
+| `condition` | str | primary, as-published condition label (`IE` / `E`), same as the `default` config's `condition` field -- **use this for any published-table-facing analysis** |
+
+### Epoch window and filtering
+
+- **EEG**: 20-channel B-Alert X24 subset (same montage as the FRP
+  config), sampled at 256 Hz.
+- **Window**: response-locked (shot-event-locked) `[-200, 600]` ms →
+  205 samples/channel.
+- **Filter**: continuous zero-phase 4th-order Butterworth bandpass,
+  0.5-30.0 Hz, applied to the full continuous recording *before*
+  epoching (per-epoch filtering of an ~800 ms window is invalid for a
+  0.5 Hz high-pass, which needs several seconds of settling).
+- **Baseline window**: `[-200, 0]` ms (pre-response) is the
+  conventional ERN baseline period included in the epoch; the exported `eeg`
+  array is the filtered epoch as-is and is **not baseline-corrected** --
+  apply baseline correction (subtract the `[-200, 0]` ms mean per
+  channel) yourself if your analysis requires it.
+- **Label convention**: shot events come from `Unity.ReNa.EventMarkers` row
+  2 (DTN-coded); DTN==1 (friendly fire) → `label=1` (error), DTN==2 (enemy)
+  → `label=0` (correct). Verified identical across US1/US2/US3 (see
+  `release/dataset/ern/extract_ern.py`'s module docstring for the
+  per-subject verification counts).
+
+### Availability
+
+Available for all three studies: US1 (offline simulation), US2 (live
+deployment), US3 (silent target-switch). Coverage varies by
+subject/study -- some subjects have zero epochs in a given study (no
+session recorded, or no `.p` file with usable shot events); see the
+coverage table below and `ern_coverage.csv` (same directory as this
+card) for exact per-subject counts.
+
+### Coverage
+
+Built from subjects=[4, 5, 12, 18, 20, 28, 29, 31, 33, 34, 35, 36, 37, 39, 40, 46, 47, 48, 49, 51, 52, 53, 54, 55, 59], studies=['us1', 'us2', 'us3'].
+
+- Total examples: 29178
+- Error rate (`label==1`): 0.2352 (6864 error / 22314 correct)
+- Subjects with zero examples across all studies: 1 ([47])
+- Subjects with >0 examples in at least one study: 24 ([4, 5, 12, 18, 20, 28, 29, 31, 33, 34, 35, 36, 37, 39, 40, 46, 48, 49, 51, 52, 53, 54, 55, 59])
+
+Full per-subject x per-study correct/error counts: see `ern_coverage.csv`.
+Table (subject_id x study, `total` = row sum):
+
+| subject_id | us1_correct | us1_error | us2_correct | us2_error | us3_correct | us3_error | total |
+|---|---|---|---|---|---|---|---|
+| 4 | 218 | 100 | 404 | 141 | 483 | 118 | 1464 |
+| 5 | 224 | 120 | 0 | 0 | 0 | 0 | 344 |
+| 12 | 158 | 80 | 0 | 0 | 0 | 0 | 238 |
+| 18 | 190 | 85 | 327 | 199 | 0 | 0 | 801 |
+| 20 | 162 | 81 | 388 | 190 | 412 | 117 | 1350 |
+| 28 | 258 | 103 | 416 | 149 | 502 | 137 | 1565 |
+| 29 | 291 | 143 | 544 | 215 | 651 | 148 | 1992 |
+| 31 | 300 | 137 | 0 | 0 | 0 | 0 | 437 |
+| 33 | 246 | 109 | 613 | 123 | 513 | 106 | 1710 |
+| 34 | 362 | 89 | 683 | 111 | 573 | 115 | 1933 |
+| 35 | 300 | 113 | 377 | 57 | 226 | 31 | 1104 |
+| 36 | 427 | 95 | 697 | 120 | 687 | 85 | 2111 |
+| 37 | 381 | 89 | 714 | 152 | 684 | 109 | 2129 |
+| 39 | 273 | 123 | 651 | 232 | 566 | 210 | 2055 |
+| 40 | 264 | 66 | 0 | 0 | 540 | 105 | 975 |
+| 46 | 316 | 134 | 0 | 0 | 566 | 213 | 1229 |
+| 47 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 48 | 305 | 109 | 627 | 228 | 605 | 165 | 2039 |
+| 49 | 92 | 43 | 563 | 247 | 573 | 193 | 1711 |
+| 51 | 229 | 84 | 438 | 142 | 392 | 140 | 1425 |
+| 52 | 182 | 65 | 0 | 0 | 0 | 0 | 247 |
+| 53 | 279 | 81 | 676 | 198 | 0 | 0 | 1234 |
+| 54 | 313 | 114 | 0 | 0 | 0 | 0 | 427 |
+| 55 | 240 | 119 | 0 | 0 | 0 | 0 | 359 |
+| 59 | 213 | 86 | 0 | 0 | 0 | 0 | 299 |

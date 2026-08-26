@@ -6,7 +6,7 @@ Wraps analysis/repro/table5_reconv_drop.py via subprocess with configurable drop
 
 Usage:
     from release.reproduce import table6_us3
-    table6_us3.run()  # Uses DEFAULT_DROP = release.common.cohort.US3_DROP ({18, 39})
+    table6_us3.run()  # Uses DEFAULT_DROP = TABLE6_DROP ({52, 54, 55, 63})
     table6_us3.run(drop={18, 39, 50})  # Custom drop set
 """
 
@@ -15,15 +15,20 @@ import subprocess
 import sys
 from pathlib import Path
 
-from release.common.cohort import US3_DROP
-
 # Script that generates Table 6 cells (US3 post-switch reconvergence)
 GENERATOR = "analysis/repro/table5_reconv_drop.py"
 
-# Default drop set (matches REPRODUCE.md camera-ready table); single-sourced
-# from release.common.cohort.US3_DROP so this and release/common/cohort.py
-# can't silently drift apart.
-DEFAULT_DROP = US3_DROP
+# Table 6's own drop cohort, forensically verified against the published
+# paper cells (OLIVE-E 100%/68.5±3.8, 37%/30.7±5.6; OLIVE-IE 100%/53.8±4.1,
+# 56%/25.1±4.0; IE-vs-E guidance t=-2.67, p=.008). Deliberately NOT sourced
+# from release.common.cohort.US3_DROP ({18, 39}), which is a different,
+# older drop set that was this wrapper's previously-committed default and
+# reproduces a different (non-paper) p-value (p=.046). Table 6 has its own
+# disclosed cohort and must not silently track cohort.US3_DROP.
+TABLE6_DROP = {52, 54, 55, 63}
+
+# Default drop set (matches REPRODUCE.md camera-ready Table 6).
+DEFAULT_DROP = TABLE6_DROP
 
 
 def run(drop=None):
@@ -40,7 +45,7 @@ def run(drop=None):
     - IE vs E Welch t-tests
 
     Args:
-        drop: Set of participant IDs to exclude (default: {18, 39}).
+        drop: Set of participant IDs to exclude (default: {52, 54, 55, 63}).
               If None, uses DEFAULT_DROP.
 
     Returns:
