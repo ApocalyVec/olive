@@ -1,184 +1,157 @@
-# OLIVE: Online Latent Inference from Variable Evidence
+<div align="center">
 
-OLIVE is an online Bayesian inference system that fuses explicit behavioral signals (task performance, user actions) with implicit physiological signals (EEG, pupil diameter) into a frozen CLIP vision-language model via virtual prompt tuning. At its core, OLIVE uses an expectation-maximization algorithm to maintain a continuously-updated posterior belief over hidden user intent, enabling real-time adaptation in interactive systems like visual search assistants.
+# 🫒 OLIVE
 
-## Repository Layout
+### Augmenting Human Performance with an XR Agent Learning from Online Behavior and BCI Evidence
 
-- **`olive/`**: Core OLIVE server and inference engine
-  - `server.py`: gRPC server that runs the OLIVE wingman (decoder-free; run with `python -m release.olive.server --port 50055`)
-  - `decode.py`: The decoder seam — ships with a default per-fixation implicit-evidence decoder, replaceable with your own EEG decoder
+**Online Latent Inference from Variable Evidence**
 
-- **`reproduce/`**: Reproduction scripts for key results from the paper
-  - `us1.py`: US1 offline simulation (Wingman on simulated participants)
-  - `us1_convergence.py`: Convergence analysis from US1 simulation output
-  - `table2_us2.py` ... `table8_us3.py`, `fig6_reliance.py`: Per-table/figure
-    reproduction wrappers for Tables 2-8 and Figure 6 (analysis over logged
-    posteriors/blockStats, no OLIVE re-run; see `release/REPRODUCE.md` for cohorts)
-  - `reproduce_all.py`: Single entrypoint that runs all of the above and checks results
-    against the paper's camera-ready values
-  - `rerun_live_subset.py`: Partial-cohort live OLIVE validation
+Ziheng "Leo" Li\* · Xichen He\* · Haoyan Chen\* · Charlie Zou\* · Sheng Bai · Benjamin Yang · Mengyuan Wu · Jake Ledner · Yi-Jie Cheng · Akito Yamauchi · Dishita G. Turakhia · Steven Feiner · Paul Sajda
 
-- **`dataset/`**: FRP epoch extraction, processing, and export
-  - `extract_epochs.py`: Fixation-locked EEG/pupil epoch extraction
-  - `regen_p_target.py`: Per-fixation target-probability regeneration
-  - `derive_saccades.py`: Incoming-saccade feature derivation
-  - `attach_metadata.py`: Condition/block metadata attachment
-  - `export_hf.py`: Hugging Face dataset export (default config)
-  - `ern/export_ern.py`, `ern/extract_ern.py`: Second HF config (`ern`) -- response-locked
-    error-vs-correct epochs; see `## ERN variant` in `release/dataset/CARD.md`
-  - `CARD.md`: Full dataset documentation
-  - `out/coverage.csv`: Per-subject, per-study epoch counts
+![UIST 2026](https://img.shields.io/badge/Paper-UIST%202026-b31b1b.svg)
+![Dataset](https://img.shields.io/badge/🤗%20Dataset-olive--frp-yellow.svg)
+![Python](https://img.shields.io/badge/python-3.10-blue.svg)
+![License](https://img.shields.io/badge/license-see%20LICENSE-green.svg)
 
-The default-config FRP dataset covers the **25-subject** release cohort
-(`release.common.cohort.PUBLISHED_SUBJECTS`) with per-fixation EEG+pupil epochs. A
-`task` field labels each epoch's block as `visual_search` (the calibration phase) or
-`spaceshooter` (gameplay); both occur within every study session (US1/US2/US3 each
-contain both calibration and gameplay blocks). A second HF config, `ern`, ships response-locked
-error-related-negativity epochs as a distinct dataset variant -- see the dataset CARD
-for field-level detail.
+<p align="center">
+  <img src="assets/teaser.png" width="95%" alt="OLIVE teaser">
+</p>
 
-- **`common/`**: Shared utilities
-  - `cohort.py`: Release cohort definition (`RELEASE_SUBJECTS`)
+<em>OLIVE fuses <b>explicit</b> behavioral evidence (what the user acts on) and <b>implicit</b> physiological evidence (fixation-locked EEG) online into a frozen vision–language model, learning per-source reliability without labels — and drives an XR agent that highlights task-relevant targets in real time.</em>
 
-## Reproducibility
+</div>
 
-Reproduction works differently for US1 vs. US2/US3, and it's worth being precise about
-which is which:
+---
 
-- **US1** is reproduced by actually re-running the OLIVE server (Quickstart Steps 1-3
-  below). The online-EM update itself is deterministic by design (seeded), but the
-  server gates EM rounds on wall-clock time rather than a seeded step counter, so a
-  re-run is reproducible **up to EM-timing jitter**, not bit-exact-guaranteed. Expect
-  convergence rates/times close to, but not necessarily identical to, the reference
-  values in `release/REPRODUCE.md`.
-- **US2/US3** (paper Tables 2-8 and Figure 6) are reproduced by *analysis over the
-  live-logged posteriors and blockStats* in `~/wingman` -- there is no OLIVE re-run
-  involved. All of Tables 2-8 and Figure 6 reproduce exactly this way via
-  `python -m release.reproduce.reproduce_all`; see `release/REPRODUCE.md` for the full
-  per-table cohort/drop-list matrix.
-- The dataset's per-fixation `p_target` field is a *regenerated* implicit-evidence
-  signal, shipped for **auditability and decoder-swap experiments**. It is not the
-  literal value OLIVE used live during data collection, and it is not the mechanism
-  behind any paper table -- Tables 2-8 and Figure 6 come from logged posteriors, not
-  from replaying `p_target`.
+## TL;DR
 
-## Setup
+OLIVE adapts a **frozen CLIP** at test time via a small virtual prompt, using an **online EM** loop that fuses noisy behavioral + neural evidence and estimates each channel's reliability on the fly. This repository contains the **algorithm**, an **exact reproduction** of the paper's Tables 2–8 and Figure 6, and two **released datasets** (fixation-related potentials + an ERN variant).
 
-1. Python 3.10+, in a virtualenv or conda env of your choice.
-2. Install dependencies:
-   ```bash
-   pip install -r release/requirements.txt
-   ```
-   `release/requirements.txt` covers the dataset-export path only (`datasets`, `pyarrow`); the OLIVE server and reproduction scripts additionally need the parent repo's own dependencies (see the top-level `requirements.txt` at the repo root), so run this release from inside a checkout of the full repo rather than as a standalone package.
-3. Create the working directories the scripts expect:
-   ```bash
-   mkdir -p save_files outputs/us1
-   ```
+## Abstract
+
+> We present **OLIVE**, a framework for adapting a foundation model to provide real-time assistance in temporally demanding, high-stakes, and dynamic tasks. We show that passive EEG, fused online with behavioral evidence, can meaningfully extend the number of targets users detect and engage beyond their unaided action bandwidth. OLIVE learns from both *explicit behavioral signals* (the targets the user shoots down in an XR first-person shooter game) and *implicit physiological signals* (fixation-locked EEG) to provide timely guidance, continuously adapting a frozen vision–language model's inference on which items are task-relevant by jointly estimating per-source reliability without manual labels or offline training. Through three user studies — including two live deployments of an assistive agent driven by OLIVE in XR — we show that OLIVE outperforms prior test-time adaptation frameworks in convergence speed and likelihood, produces the largest and most reliable within-session improvement to a user's ability to detect and engage targets (largely independent of skill), and, when the target switches silently, reconverges **1.27× faster** than a behavior-only agent (*p* = .008).
+
+## Method
+
+<p align="center">
+  <img src="assets/system_design.png" width="85%" alt="OLIVE system design">
+</p>
+
+Each evidence channel is treated as a **noisy annotator** contributing a log-likelihood ratio toward item relevance: a frozen VLM scores visual crops, positive-only actions form an explicit channel, and fixation-locked EEG forms an implicit channel. An **online EM** accumulates these into per-item beliefs (E-step) and re-estimates each channel's reliability + the VLM prompt (M-step) — anchored so beliefs can never collapse or invert polarity. The decoder is **pluggable** (`olive/decode.py`); OLIVE only needs a per-fixation probability.
+
+## Key results
+
+<p align="center">
+  <img src="assets/convergence.png" width="80%" alt="US2 vs US1 convergence">
+</p>
+
+Every paper table and figure regenerates exactly from committed recipes:
+
+| Result | Highlight |
+|---|---|
+| **Table 2** — convergence | OLIVE-IE reaches **96.8% guidance convergence in 28.3 s** (US1); live US2 tracks it |
+| **Table 3/7** — within-session gain | OLIVE-IE gives the largest throughput improvement (US2 Δ +0.031, *p*=.003) |
+| **Table 6** — silent-switch reconvergence | OLIVE-IE reconverges **1.27× faster** than behavior-only (*p*=.008) |
+| **Fig 6** — trust growth | OLIVE-IE gaze-reliance grows significantly while behavior-only erodes |
+
+Run it yourself: `python -m release.reproduce.reproduce_all` → **Tables 2–8 + Fig 6, all PASS**.
+
+## Repository layout
+
+| Path | What |
+|---|---|
+| `olive/server.py` | decoder-free OLIVE gRPC server (online EM + CLIP scorer) |
+| `olive/decode.py` | the pluggable `decode()` seam (default per-fixation decoder) |
+| `reproduce/` | one wrapper per paper table/figure + `reproduce_all.py` |
+| `dataset/` | FRP dataset builder + `dataset/ern/` (ERN variant) |
+| `examples/` | ERP and subject-transfer example notebooks |
+| `common/cohort.py` | cohort constants · `AGENTS.md` | working-with-agents guide |
+
+## Installation
+
+```bash
+git clone https://github.com/ApocalyVec/olive && cd olive
+python -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt         # + the parent OLIVE repo's requirements
+mkdir -p save_files                     # cache dir for the US1 simulation
+```
+
+> **Note:** the reproduction wrappers call analysis scripts from the main OLIVE research
+> repo (`analysis/repro/…`) and the dataset builders read `~/wingman/`; run this release
+> from inside a checkout of the full repo. See [`REPRODUCE.md`](REPRODUCE.md).
 
 ## Quickstart
 
-### Step 1: Boot the OLIVE gRPC server
-
-In one terminal, from the repo root:
 ```bash
-python -m release.olive.server --port 50055
+# 1) Boot the OLIVE server (CLIP ViT-B/16; CPU / MPS / CUDA)
+PYTHONPATH=. python -m olive.server --port 50055
+
+# 2) Reproduce the US1 convergence benchmark end-to-end
+PYTHONPATH=. python -m reproduce.us1 --participants 5 20 --steps 90 --num-trials 5 \
+    --addr localhost:50055 --output-dir outputs/us1
+PYTHONPATH=. python -m reproduce.us1_convergence outputs/us1/secondStats.csv
+
+# 3) Reproduce every US2/US3 table + figure from the logged data (no server needed)
+PYTHONPATH=. python -m reproduce.reproduce_all
 ```
 
-### Step 2: Run the US1 offline simulation
+## 🤗 Dataset
 
-In another terminal:
-```bash
-python -m release.reproduce.us1 \
-    --participants 5 20 \
-    --steps 90 \
-    --num-trials 5 \
-    --addr localhost:50055 \
-    --output-dir outputs/us1
+Two configs on the [**Hugging Face dataset**](https://huggingface.co/datasets/ApocalyVec/olive-frp):
+
+```python
+from datasets import load_dataset
+frp = load_dataset("ApocalyVec/olive-frp", "default")  # fixation-locked FRP epochs
+ern = load_dataset("ApocalyVec/olive-frp", "ern")      # response-locked ERN epochs
 ```
 
-This generates per-second and per-block metrics across two participants (IDs 5, 20) in both IE (Implicit+Explicit) and E (Explicit-only) conditions, writing `outputs/us1/secondStats.csv` and `outputs/us1/blockStats.csv`.
+- **`default`** — per-fixation EEG (20 ch, [-0.1, 0.8] s) + pupil epochs, target label (`y==1`=target), a per-block `task` field (visual-search vs SpaceShooter), condition/block metadata, and a per-fixation implicit-evidence `p_target` (US2/US3). 25 subjects.
+- **`ern`** — response-locked EEG ([-200, 600] ms) labeled error (friendly fire) vs correct (enemy hit).
 
-### Step 3: Analyze US1 convergence
+<table>
+<tr>
+<td width="50%"><img src="examples/erp_target_vs_nontarget.png" alt="ERP target vs non-target"></td>
+<td width="50%"><img src="examples/subject_transfer_decoding.png" alt="subject transfer decoding"></td>
+</tr>
+<tr>
+<td align="center"><a href="examples/erp_target_vs_nontarget.ipynb">Target-vs-non-target ERP (VS &amp; SS)</a></td>
+<td align="center"><a href="examples/subject_transfer_decoding.ipynb">Leave-one-subject-out transfer decoding</a></td>
+</tr>
+</table>
 
-```bash
-python -m release.reproduce.us1_convergence \
-    outputs/us1/secondStats.csv \
-    --output-csv release/reproduce/out/us1_convergence.csv
-```
+## Reproducing the paper
 
-This computes per-variant belief/guidance convergence rates and times; compare the output to the reference table in `release/REPRODUCE.md`.
-
-### Step 4: Reproduce Tables 2-8 / Figure 6 (optional)
-
-`release/reproduce/reproduce_all.py` runs every Table 2-8 + Figure 6 wrapper against
-already-logged posteriors/blockStats in `~/wingman` (no OLIVE server, no US1 re-run) and
-checks the reproduced cells against the paper's camera-ready values:
-
-```bash
-python -m release.reproduce.reproduce_all
-```
-
-Individual wrappers (`table2_us2` ... `table8_us3`, `fig6_reliance`) invoke analysis
-scripts from the main OLIVE research repo (`analysis/repro/...`), which are **not
-vendored in this release** and must be present on disk at the repo root alongside
-`release/` for these commands to run (see Requirements below). Full details, including
-each table's cohort/drop list, are in `release/REPRODUCE.md`.
-
-```bash
-python -m release.reproduce.table2_us2   # Table 2: US2 live-deployment convergence
-python -m release.reproduce.table6_us3   # Table 6: US3 silent-switch reconvergence
-```
-
-### Step 5: Build the FRP dataset (optional)
-
-```bash
-python -m release.dataset.export_hf
-```
-
-This assembles the per-fixation FRP dataset for the release cohort, writing a Parquet/HF dataset, a coverage matrix, and `release/dataset/CARD.md` under `release/dataset/out/`. See `release/dataset/CARD.md` for the full field-by-field description of the exported dataset.
+`REPRODUCE.md` documents the exact command, cohort/drop set, and expected cells for every
+target. `reproduce_all.py` checks each reproduced value against the paper and reports PASS/FAIL.
+US2/US3 numbers come from analysis over the live-logged posteriors; US1 is a seeded simulation
+re-run through OLIVE (deterministic by design, reproducible up to EM-timing jitter).
 
 ## Extending OLIVE
 
-### Extension Point 1: Replace the Decoder
+- **Bring your own decoder** — implement the `Decoder` protocol in `olive/decode.py`; the released
+  `p_target` column is a baseline to compare against.
+- **Tune the EM** — prompt lr, prevalence anchor, EMA smoothing — and measure with
+  `reproduce/us1_convergence.py`.
 
-The decoder interface is defined in `release/olive/decode.py` as a simple `Decoder` protocol:
+See [`AGENTS.md`](AGENTS.md) for a full working-with-agents guide.
 
-```python
-def decode(item_dtn: int, *, seed: Optional[int] = None) -> tuple[float, float]:
-    """Return (p_target, quality)"""
+## Citation
+
+```bibtex
+@inproceedings{li2026olive,
+  title     = {Augmenting Human Performance with an XR Agent Learning from
+               Online Behavior and BCI Evidence},
+  author    = {Li, Ziheng and He, Xichen and Chen, Haoyan and Zou, Charlie and
+               Bai, Sheng and Yang, Benjamin and Wu, Mengyuan and Ledner, Jake and
+               Cheng, Yi-Jie and Yamauchi, Akito and Turakhia, Dishita G. and
+               Feiner, Steven and Sajda, Paul},
+  booktitle = {Proceedings of the 38th Annual ACM Symposium on User Interface
+               Software and Technology (UIST)},
+  year      = {2026}
+}
 ```
 
-By default, OLIVE ships with `DefaultDecoder`, which reads recorded per-subject EEG-evidence parameters. To integrate your own physiological decoder:
+## License
 
-1. Implement a class conforming to the `Decoder` protocol
-2. Modify `release/olive/decode.py`'s `load_default_decoder()` to return your decoder instead
-3. The shipped per-fixation `p_target` is a regenerated implicit-evidence signal provided for auditability and decoder-swap experiments (not the literal value used live); verify your decoder's behavior against it and against the dataset export's `p_target_quality` field
-
-### Extension Point 2: Tune EM Hyperparameters
-
-OLIVE's online-EM convergence speed and final accuracy are controlled by:
-- **Prompt learning rate**: How fast the virtual prompt adapts to new evidence
-- **Prevalence anchor**: Prior strength that stabilizes target/non-target rate estimates
-- **EMA coefficient**: Temporal smoothing of the posterior belief
-
-These hyperparameters are tuned in the server code (see `release/olive/server.py`). To measure convergence under new settings:
-
-1. Update the hyperparameters in `server.py`
-2. Re-run the US1 simulation (Step 2 above)
-3. Re-run the convergence analysis (Step 3 above) and compare belief/guidance convergence rates and times to the reference values in `release/REPRODUCE.md`
-
-## Examples
-
-`release/examples/` has two runnable notebooks over the FRP dataset:
-
-- **`erp_target_vs_nontarget.ipynb`**: Loads the dataset (local parquet or the HF Hub
-  copy) and plots target-vs-non-target fixation-locked ERPs across US1/US2/US3 and both
-  `task` values (`visual_search`, `spaceshooter`).
-- **`subject_transfer_decoding.ipynb`**: Trains a simple target-vs-non-target EEG
-  decoder on a subset of subjects and evaluates subject-level transfer to held-out
-  subjects -- the scenario OLIVE's implicit channel faces before any subject-specific
-  calibration exists.
-
-## Requirements
-
-See `release/requirements.txt` for the dataset-export Python dependencies. The OLIVE code (`olive/`) and dataset builder (`dataset/`) are self-contained and require no external OLIVE source tree beyond the repo root's own `requirements.txt`. The Table 2-8 / Figure 6 reproduction wrappers (`reproduce/table2_us2.py` ... `reproduce/table8_us3.py`, `reproduce/fig6_reliance.py`) are the exception: they invoke analysis scripts from the main OLIVE research repo (`analysis/repro/...`), which must be present on disk alongside this release for those wrappers to run.
+Code and dataset are released under the terms in [`LICENSE`](LICENSE) (intended MIT for code /
+CC-BY-4.0 for the dataset; confirm before public release). \* denotes equal contribution.
