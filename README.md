@@ -2,7 +2,7 @@
 
 # 🫒 OLIVE
 
-### Adapt a foundation model to whatever you're doing — in real time, from your **brain signals** and behavior.
+### Adapt a foundation model to your task, in real time, from your **brain signals** and behavior.
 
 Ziheng "Leo" Li\* · Xichen He\* · Haoyan Chen\* · Charlie Zou\* · Sheng Bai · Benjamin Yang · Mengyuan Wu · Jake Ledner · Yi-Jie Cheng · Akito Yamauchi · Dishita G. Turakhia · Steven Feiner · Paul Sajda
 
