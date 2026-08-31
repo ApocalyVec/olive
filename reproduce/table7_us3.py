@@ -10,7 +10,7 @@ CSV as given. To apply the Table 7 drop cohorts, this wrapper writes a
 FILTERED COPY of the set3 US3 CSV (with the dropped (condition, participant_id)
 rows removed) to a temp file, then invokes the existing generator against that
 filtered copy alongside the (unfiltered) US2 set3 CSV. It does NOT reimplement
-the delta / t-test statistics -- those live entirely in within_session_delta.py.
+the delta / t-test statistics; those live entirely in within_session_delta.py.
 
 Drop cohorts (participant_ids dropped from EACH condition's rows), forensically
 verified against the published paper cells:
@@ -19,7 +19,7 @@ verified against the published paper cells:
     OLIVE-IE {37, 39, 46, 55}
     Oracle  {15, 60, 38, 41}
 
-Note this differs from Table 8's OLIVE-IE drop ({36, 39, 46, 55}) -- both are
+Note this differs from Table 8's OLIVE-IE drop ({36, 39, 46, 55}); both are
 disclosed drop sets used for different tables; they are NOT the same cohort.
 
 Usage:
@@ -108,7 +108,7 @@ def run():
             "This wrapper reproduces Table 7 by invoking an analysis script from "
             f"the main OLIVE research repo ({GENERATOR}), which is not part of "
             "this self-contained release and must be present separately on disk "
-            "at that path relative to the repo root (it is not vendored here -- "
+            "at that path relative to the repo root (it is not vendored here; "
             "see release/README.md's Requirements section and release/REPRODUCE.md "
             "§ 'US3 New-Target Throughput Delta (Table 7) Reproduction')."
         )

@@ -136,7 +136,7 @@ def _dedup_wingman_source_shards(all_shards: list[Path]) -> list[Path]:
     source directory, and those must survive untouched. A `wingman/` shard
     is dropped here only when a non-`wingman/` shard in the same study dir
     shares both its basename (modulo the `wingman_` prefix) and its exact,
-    non-zero file size -- i.e. only when it is provably the same file
+    non-zero file size: i.e. only when it is provably the same file
     ingested twice. If `wingman/` is the *only* source in the study dir
     (subject 4/us1: no sibling shard at all), nothing is dropped; that is
     exactly the case the float-retry exists to recover.
@@ -193,12 +193,12 @@ def _iter_shard_records(shard_path: Path, allow_float_yraw_retry: bool = True):
     shards serialize `y_raw_encoded` as a float feature while `_DESCRIPTION`
     declares it "int", which makes `tfrecord_loader` raise a TypeError before
     yielding anything. If that happens on the very first record of a fresh
-    attempt (and `allow_float_yraw_retry` is True -- see `iter_epochs`), we
+    attempt (and `allow_float_yraw_retry` is True, see `iter_epochs`), we
     retry the whole shard once with `_DESCRIPTION_FLOAT_YRAW` (`y_raw_encoded`
     declared "float"); `_as_scalar_int` rounds it back to an int downstream.
     If records were already yielded before the failure (a genuinely
-    mixed/corrupt shard, not this dtype mismatch), we do not retry -- that
-    would re-yield already-emitted records -- and fall back to the
+    mixed/corrupt shard, not this dtype mismatch), we do not retry (that
+    would re-yield already-emitted records) and fall back to the
     warn-and-stop behavior.
     """
     description = _DESCRIPTION
@@ -263,12 +263,12 @@ def iter_epochs(subject_id: int, study: str) -> Iterator[dict]:
     retry to it would double-count every affected subject. So the retry is
     only allowed for a `wingman/`-parented shard when `wingman/` is this
     subject/study's *only* shard source (e.g. subject 4 / us1, which has no
-    sibling directory at all) -- i.e. exactly the case the retry is meant to
+    sibling directory at all): i.e. exactly the case the retry is meant to
     fix.
 
     Subjects whose `wingman/` and sibling copies were *both* already
-    readable pre-retry (e.g. subject 18 / us1) never hit that TypeError --
-    and hence never hit the retry-decision guard above -- so a plain
+    readable pre-retry (e.g. subject 18 / us1) never hit that TypeError
+    (and hence never hit the retry-decision guard above), so a plain
     recursive glob ingested both int-encoded copies of every shard, doubling
     every extracted epoch. `_dedup_wingman_source_shards` removes that
     duplicate source (see its docstring) before shards are read, independent

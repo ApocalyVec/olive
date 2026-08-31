@@ -49,7 +49,7 @@ def run():
             "This wrapper reproduces Table 4 by invoking an analysis script from "
             f"the main OLIVE research repo ({GENERATOR}), which is not part of "
             "this self-contained release and must be present separately on disk "
-            "at that path relative to the repo root (it is not vendored here -- "
+            "at that path relative to the repo root (it is not vendored here; "
             "see release/README.md's Requirements section and release/REPRODUCE.md "
             "§ 'US2 Skill Moderation (Table 4) Reproduction')."
         )

@@ -3,7 +3,7 @@ Incoming-saccade kinematics derived from the raw `.p` eye-tracking recordings.
 
 Each Wingman session is dumped as a pickled dict of
 `{stream_name: (data[channels, samples], timestamps[samples])}` (protocol-4
-pickle written by the ReNa recorder, NOT the RNStream `.dats` container --
+pickle written by the ReNa recorder, NOT the RNStream `.dats` container;
 `rlpf.utils.RNStream` does not parse these files and should not be used
 here).
 
@@ -12,7 +12,7 @@ already in the same LSL clock as the Varjo stream timestamps) we want the
 kinematics of the saccade that *produced* that fixation, i.e. the saccade
 immediately preceding `t_onset`. This module locates that saccade in the raw
 `Unity.VarjoEyeTrackingComplete` stream and reports its amplitude/velocity
-(via `rlpf.eye.eyetracking`'s I-VT/I-DT + `Saccade` machinery -- the
+(via `rlpf.eye.eyetracking`'s I-VT/I-DT + `Saccade` machinery; the
 amplitude/velocity physics is not reimplemented here) together with
 `dx`/`dy`/`angle`, which are derived directly from the change in the
 gaze-forward unit vector across the saccade (the `Saccade` class does not
@@ -51,14 +51,14 @@ _UNIT_NORM_TOLERANCE = 0.05
 
 # Default window (seconds) of samples looked at *before* a fixation onset
 # when hunting for its incoming saccade. The window ends AT t_onset (no
-# look-ahead) -- the brief's hard constraint is "samples BEFORE t_onset",
+# look-ahead): the brief's hard constraint is "samples BEFORE t_onset",
 # and a look-ahead window let the detector occasionally pick an outgoing
 # saccade (one that starts at/after t_onset) as if it were incoming.
 _DEFAULT_PRE_WINDOW_S = 0.5
 _MIN_WINDOW_SAMPLES = 8
 
 # A detected saccade's offset (landing) time is allowed to exceed t_onset by
-# at most this much and still be considered "incoming" -- this only absorbs
+# at most this much and still be considered "incoming"; this only absorbs
 # floating-point/index-to-time rounding noise from the detector, since the
 # analysis window itself never contains samples after t_onset.
 _OFFSET_TOL_S = 0.005
@@ -78,7 +78,7 @@ def load_p_streams(p_path) -> dict:
     Load a session's `.p` recording.
 
     The file is a protocol-4 pickle of `{stream_name: (data, timestamps)}`.
-    Returns the dict unmodified -- callers index into it by stream name
+    Returns the dict unmodified; callers index into it by stream name
     (e.g. 'Unity.VarjoEyeTrackingComplete', 'Unity.HeadTracker').
     """
     with open(p_path, "rb") as f:
@@ -134,13 +134,13 @@ def incoming_saccade(
         'Unity.HeadTracker' stream. Accepted for interface symmetry with the
         session's stream dict; head-rotation compensation is not applied in
         this derivation (kept out to avoid brittle resampling over the short
-        pre-onset windows used here) -- amplitude/velocity are computed on
+        pre-onset windows used here): amplitude/velocity are computed on
         raw (non-head-corrected) gaze angles, matching
         `fixation_detection_i_vt`/`_i_dt`'s default (`head_rotation_xy_degree=None`).
     @param t_onset: fixation onset timestamp, LSL clock (same clock as
-        `varjo`'s timestamps -- NOT the `long_gaze.jsonl` record wrapper's
+        `varjo`'s timestamps; NOT the `long_gaze.jsonl` record wrapper's
         unix-epoch `timestamp` field). The analysis window is
-        `[t_onset - pre_window_s, t_onset]` -- strictly samples BEFORE (or
+        `[t_onset - pre_window_s, t_onset]`: strictly samples BEFORE (or
         at) `t_onset`, never after, so an outgoing saccade of the same
         fixation cannot be mistaken for the incoming one.
     @return: dict with float keys amplitude, angle, peak_velocity,
@@ -220,7 +220,7 @@ def _select_incoming_saccade(saccades, t_onset: float, tol: float = _OFFSET_TOL_
     list of detected `Saccade` objects.
 
     Only candidates that land at or before `t_onset` (within `tol`, to
-    absorb detector index-to-time rounding noise) qualify -- a saccade whose
+    absorb detector index-to-time rounding noise) qualify; a saccade whose
     offset is after `t_onset` is an outgoing saccade of some other fixation,
     not the one that produced this one. Among qualifying candidates, the one
     with the latest `offset_time` is the saccade immediately into this

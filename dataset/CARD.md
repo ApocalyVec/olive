@@ -53,7 +53,7 @@ condition and block information.
 | `saccade_peak_velocity` | float deg/s or NaN | incoming-saccade peak velocity |
 | `saccade_mean_velocity` | float deg/s or NaN | incoming-saccade mean velocity |
 | `saccade_dx`, `saccade_dy` | float or NaN | gaze-forward-vector delta components across the incoming saccade |
-| `condition` | str | primary, as-published condition label (`IE` / `E`) -- **use this for any published-table-facing analysis** |
+| `condition` | str | primary, as-published condition label (`IE` / `E`); **use this for any published-table-facing analysis** |
 | `condition_ra` | str or None | secondary RA-proposed overlay label; **UNRESOLVED, does not match published tables**, transparency/audit only |
 | `block_idx` | int | 0-indexed block within (subject, study, session); `-1` if not derivable (see caveat) |
 | `difficulty` | int | adaptive difficulty level for `block_idx`, from `meta.jsonl`; `-1` if not found |
@@ -86,12 +86,12 @@ lookup falls back to `difficulty = -1` => `task = visual_search`.
   `Control` labels for a handful of subjects) that is **UNRESOLVED against the
   published cohort and does not match the paper's tables** (see
   `release/dataset/attach_metadata.py`'s module docstring and `_RA_OVERRIDES`).
-  Included for transparency/auditing only -- always prefer `condition` for anything
+  Included for transparency/auditing only; always prefer `condition` for anything
   that should agree with the paper.
 
 ## `p_target` generation
 
-`p_target` is the per-fixation implicit-evidence target probability produced by the default decoder in `release/olive/decode.py` (`DefaultDecoder`), which reads per-subject parameters under `eeg_priors/`. It is `NaN` for subjects/rows without available parameters. Replace the decoder with your own — see the repository README.
+`p_target` is the per-fixation implicit-evidence target probability produced by the default decoder in `release/olive/decode.py` (`DefaultDecoder`), which reads per-subject parameters under `eeg_priors/`. It is `NaN` for subjects/rows without available parameters. Replace the decoder with your own; see the repository README.
 
 ## Coverage
 
@@ -142,7 +142,7 @@ this card). Table (subject_id x study, `total` = row sum):
 (`with_saccades=False`). Deriving them requires loading a session's raw `.p`
 eye-tracking recording (up to ~1-3GB) and joining each epoch's TFRecord-clock
 `fix_time_s` against `long_gaze.jsonl`'s LSL-clock `t_onset` by nearest-match within
-`item_id`, subject to a tolerance (default 1.0s) --
+`item_id`, subject to a tolerance (default 1.0s);
 **these two clocks are not guaranteed to share an origin**, so even with
 `with_saccades=True`, a session whose clocks do not align will legitimately yield
 all-NaN saccade fields for every epoch in that session; this is a documented
@@ -163,12 +163,12 @@ identifying information (name, contact info, raw video) is included in this expo
 
 ## License
 
-**TBD** -- placeholder: CC-BY-4.0 (pending final confirmation from the study PI /
+**TBD**: placeholder, CC-BY-4.0 (pending final confirmation from the study PI /
 IRB before public release).
 
 ## Citation
 
-**Placeholder** -- update with the final paper citation before public release:
+**Placeholder**: update with the final paper citation before public release:
 
 ```
 @inproceedings{olive-physio-2026,
@@ -183,7 +183,7 @@ IRB before public release).
 
 A second HuggingFace config (`ern`), loadable via
 `load_dataset("ApocalyVec/olive-physio", "ern")`, of per-shot response-locked
-ERN (error-related negativity) epochs -- distinct from the fixation-locked
+ERN (error-related negativity) epochs, distinct from the fixation-locked
 FRP epochs in the `default` config above.
 
 ### What this is
@@ -205,7 +205,7 @@ correct/error.
 | `label` | int (0/1) | `0` = correct (enemy hit), `1` = error (friendly-fire hit) |
 | `shot_time` | float | LSL timestamp of the shot event |
 | `montage` | list[str] | B-Alert channel names, in `eeg` row order |
-| `condition` | str | primary, as-published condition label (`IE` / `E`), same as the `default` config's `condition` field -- **use this for any published-table-facing analysis** |
+| `condition` | str | primary, as-published condition label (`IE` / `E`), same as the `default` config's `condition` field; **use this for any published-table-facing analysis** |
 
 ### Epoch window and filtering
 
@@ -219,7 +219,7 @@ correct/error.
   0.5 Hz high-pass, which needs several seconds of settling).
 - **Baseline window**: `[-200, 0]` ms (pre-response) is the
   conventional ERN baseline period included in the epoch; the exported `eeg`
-  array is the filtered epoch as-is and is **not baseline-corrected** --
+  array is the filtered epoch as-is and is **not baseline-corrected**;
   apply baseline correction (subtract the `[-200, 0]` ms mean per
   channel) yourself if your analysis requires it.
 - **Label convention**: shot events come from `Unity.ReNa.EventMarkers` row
@@ -232,7 +232,7 @@ correct/error.
 
 Available for all three studies: US1 (offline simulation), US2 (live
 deployment), US3 (silent target-switch). Coverage varies by
-subject/study -- some subjects have zero epochs in a given study (no
+subject/study; some subjects have zero epochs in a given study (no
 session recorded, or no `.p` file with usable shot events); see the
 coverage table below and `ern_coverage.csv` (same directory as this
 card) for exact per-subject counts.

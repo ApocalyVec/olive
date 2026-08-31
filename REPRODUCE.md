@@ -7,21 +7,21 @@ This document describes how to reproduce key results from the OLIVE paper using 
 Reproduction is not the same mechanism for every result in the paper:
 
 - **US1** (the canonical simulation, and the US1 reference row in Table 2) is reproduced
-  by actually re-running the OLIVE server -- see [US1 Simulation + Convergence
+  by actually re-running the OLIVE server: see [US1 Simulation + Convergence
   Reproduction](#us1-simulation--convergence-reproduction) below. Online-EM itself is
   deterministic by design (seeded), but the server gates EM rounds on wall-clock time
   rather than a seeded step counter, so a re-run is reproducible **up to EM-timing
   jitter**, not bit-exact-guaranteed: expect convergence rates/times close to, but not
   necessarily identical to, the reference values.
 - **US2 and US3** (Tables 2-8, Figure 6) are reproduced by *analysis over the
-  live-logged posteriors and blockStats* already sitting in `~/wingman` -- none of these
+  live-logged posteriors and blockStats* already sitting in `~/wingman`; none of these
   wrappers re-run OLIVE. All of Tables 2-8 and Figure 6 now reproduce exactly this way
   via `release/reproduce/reproduce_all.py`; see the Reproduction Matrix below for the
   disclosed per-table cohort/drop list.
 - The dataset's per-fixation `p_target` field (see `release/dataset/CARD.md`) is a
   *regenerated* implicit-evidence signal shipped for **auditability and decoder-swap
   experiments**. It is not the literal value OLIVE used live during data collection, and
-  it is not the mechanism behind any paper table -- none of Tables 2-8 or Figure 6 are
+  it is not the mechanism behind any paper table; none of Tables 2-8 or Figure 6 are
   produced by replaying `p_target`.
 
 ## Reproduce Everything: `reproduce_all`
@@ -124,7 +124,7 @@ python -m release.reproduce.us1_convergence \
 **Output:**
 - `release/reproduce/out/us1_convergence.csv`: Convergence rate and time statistics per variant
 
-**Expected output** (should be close to the reference rates, not necessarily identical --
+**Expected output** (should be close to the reference rates, not necessarily identical;
 see the jitter caveat below):
 ```
 Variant  Metric                Rate    Time (s)
@@ -136,7 +136,7 @@ E        Guidance convergence 0.79    37
 
 **Reproducibility note:** online-EM is deterministic by design (seeded), but the server
 gates EM rounds on wall-clock time rather than a seeded step counter. A re-run is
-therefore reproducible **up to EM-timing jitter** -- not bit-exact-guaranteed -- so
+therefore reproducible **up to EM-timing jitter** (not bit-exact-guaranteed), so
 small run-to-run differences in convergence time (and occasionally rate) are expected.
 
 ---

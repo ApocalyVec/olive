@@ -8,7 +8,7 @@ Interfaces:
 
 RA overlay (v1) is UNRESOLVED and does NOT match published tables. These corrections
 are included for transparency, but reconciliation with co-authors is still pending.
-The column should be used for analysis/auditing only — always prefer condition_for()
+The column should be used for analysis/auditing only; always prefer condition_for()
 for published tables.
 """
 
@@ -20,7 +20,7 @@ from pathlib import Path
 from release.common.cohort import AS_PUBLISHED_COND
 
 # ─────────────────────────────────────────────────────────────────────────────
-# RA v1 condition overrides — FLAGGED UNRESOLVED, do not use for published tables
+# RA v1 condition overrides: FLAGGED UNRESOLVED, do not use for published tables
 # ─────────────────────────────────────────────────────────────────────────────
 _RA_OVERRIDES = {
     4: "Oracle",    # Published: E

@@ -1,4 +1,4 @@
-# Working with agents — OLIVE code repository
+# Working with agents: OLIVE code repository
 
 This file orients an AI coding agent (Claude Code, Cursor, etc.) working in this
 repository. It is a companion to `README.md` (human quickstart) and `REPRODUCE.md`
@@ -17,7 +17,7 @@ datasets.
 | Path | Purpose |
 |---|---|
 | `olive/server.py` | decoder-free OLIVE gRPC server (EM + CLIP scorer) |
-| `olive/decode.py` | the pluggable `decode()` seam — `DefaultDecoder` is the default per-fixation implicit-evidence decoder |
+| `olive/decode.py` | the pluggable `decode()` seam: `DefaultDecoder` is the default per-fixation implicit-evidence decoder |
 | `reproduce/` | one wrapper per paper table/figure + `reproduce_all.py` |
 | `dataset/` | FRP dataset builder (`export_hf.py`) + `dataset/ern/` (ERN variant) |
 | `examples/` | example notebooks (ERP, subject-transfer) |
@@ -37,7 +37,7 @@ Run everything as `PYTHONPATH=. python …` from the repo root.
 
 - **Tests:** `PYTHONPATH=. python -m pytest tests -q`
 - **Reproduce all paper tables/figures:** `PYTHONPATH=. python -m reproduce.reproduce_all`
-  (Tables 2–8 + Fig 6; US1 needs the server, add `--with-us1`).
+  (Tables 2 to 8 + Fig 6; US1 needs the server, add `--with-us1`).
 - **OLIVE server:** `PYTHONPATH=. python -m olive.server --port 50055` (CLIP ViT-B/16; CPU/MPS/CUDA).
 - **Build the FRP dataset:** `PYTHONPATH=. python -m dataset.export_hf`
 - **Build the ERN variant:** `PYTHONPATH=. python -m dataset.ern.export_ern`

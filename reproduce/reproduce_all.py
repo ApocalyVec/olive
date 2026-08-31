@@ -443,14 +443,14 @@ def main(argv=None):
             print(cell.line())
 
     if args.with_us1:
-        print("\n--- US1 -- canonical simulation + convergence (us1) ---")
+        print("\n--- US1: canonical simulation + convergence (us1) ---")
         us1_result = run_us1(args.addr)
         results.append(us1_result)
         print(f"  status: {us1_result.status}" + (f"  ({us1_result.reason})" if us1_result.reason else ""))
         for cell in us1_result.cells:
             print(cell.line())
     else:
-        print("\n--- US1 -- canonical simulation + convergence (us1) ---")
+        print("\n--- US1: canonical simulation + convergence (us1) ---")
         print("  status: SKIP  (requires a running OLIVE gRPC server; pass --with-us1 to include)")
 
     print("\n" + "=" * 78)

@@ -6,19 +6,19 @@ This module is the final assembly step of the release pipeline: it wires
 together Tasks 2.1-2.4 (already-committed, reused as-is, never
 reimplemented here):
 
-    - `release.dataset.extract_epochs.iter_epochs`      -- raw FRP epochs
-    - `release.dataset.regen_p_target.p_target_for_epoch` -- per-fixation
+    - `release.dataset.extract_epochs.iter_epochs`: raw FRP epochs
+    - `release.dataset.regen_p_target.p_target_for_epoch`: per-fixation
       implicit-evidence target probability regeneration
-    - `release.dataset.derive_saccades.{load_p_streams,incoming_saccade}` --
+    - `release.dataset.derive_saccades.{load_p_streams,incoming_saccade}`:
       incoming-saccade kinematics from the raw `.p` eye-tracking recording
     - `release.dataset.attach_metadata.{condition_for,ra_condition_for,
-      block_meta}` -- condition/block metadata
-    - `release.common.cohort.RELEASE_SUBJECTS` -- the 27-subject release
+      block_meta}`: condition/block metadata
+    - `release.common.cohort.RELEASE_SUBJECTS`: the 27-subject release
       cohort
-    - `release.common.cohort.PUBLISHED_SUBJECTS` -- the 25-subject published
+    - `release.common.cohort.PUBLISHED_SUBJECTS`: the 25-subject published
       cohort (excludes subjects 61 and 63 with zero epochs)
 
-Saccade join (best-effort, OFF by default -- see `with_saccades`)
+Saccade join (best-effort, OFF by default: see `with_saccades`)
 -------------------------------------------------------------------
 Each epoch from `iter_epochs` carries `item_id` and `fix_time_s`, a
 TFRecord-clock fixation-onset timestamp. The raw incoming-saccade
@@ -31,7 +31,7 @@ so the join below matches by `item_id` first, then picks the
 `fix_time_s`, and only accepts the match if that gap is within
 `saccade_tolerance_s`. When the pipeline's clocks do not happen to share an
 origin for a given session, this tolerance check will reject every
-candidate and the saccade fields degrade gracefully to NaN -- this is
+candidate and the saccade fields degrade gracefully to NaN; this is
 expected, not a bug, and is why the join is documented as best-effort and
 kept behind a flag defaulting to `False`.
 
@@ -49,7 +49,7 @@ study directory. In that situation fixation events from more than one
 "session" may be pooled against a single raw recording; this is a known,
 accepted imprecision of the best-effort join (again defaulting to `nan`
 rather than fabricating a wrong-but-confident answer), not silently
-swallowed -- see `_resolve_session_root` below.
+swallowed. See `_resolve_session_root` below.
 
 Loading a session's `.p` file is expensive (up to ~1-3GB per file), so this
 module never touches the filesystem for saccades unless `with_saccades=True`
@@ -82,7 +82,7 @@ STUDIES = ("us1", "us2", "us3")
 # Default acceptance window (seconds) for matching a fixation's TFRecord-clock
 # `fix_time_s` against a `long_gaze.jsonl` fixation event's LSL-clock
 # `t_onset`. This is deliberately generous (not a physically meaningful
-# fixation-duration bound) -- it exists only to reject grossly-mismatched
+# fixation-duration bound); it exists only to reject grossly-mismatched
 # candidates when the two clocks happen not to share an origin for a given
 # session; see the module docstring's clock-alignment caveat.
 DEFAULT_SACCADE_TOLERANCE_S = 1.0
@@ -268,11 +268,11 @@ def build_examples(
     enumeration) seeds the deterministic `p_target_for_epoch` regeneration.
     Attaches condition/RA-condition metadata, best-effort block
     index/difficulty, and (only when `with_saccades=True`) incoming-saccade
-    kinematics + fixation duration -- all-nan otherwise, by design (see
+    kinematics + fixation duration, all-nan otherwise, by design (see
     module docstring).
 
     `limit`, if given, caps the *total* number of examples returned across
-    the whole (subjects x studies) sweep (not per subject/study) -- meant
+    the whole (subjects x studies) sweep (not per subject/study); meant
     for fast/small smoke builds, e.g. tests.
 
     Never raises for a subject/study with no data: `iter_epochs` already
@@ -336,7 +336,7 @@ def build_examples(
                 )
 
             # Free this (subject, study)'s loaded .p session streams before
-            # moving on -- each can be up to ~1-3GB and is never needed again
+            # moving on: each can be up to ~1-3GB and is never needed again
             # once every epoch for this pair has been assembled.
             if with_saccades:
                 for key in [k for k in session_cache if k[0] == subject_id and k[1] == study]:
@@ -504,7 +504,7 @@ condition and block information.
 | `saccade_peak_velocity` | float deg/s or NaN | incoming-saccade peak velocity |
 | `saccade_mean_velocity` | float deg/s or NaN | incoming-saccade mean velocity |
 | `saccade_dx`, `saccade_dy` | float or NaN | gaze-forward-vector delta components across the incoming saccade |
-| `condition` | str | primary, as-published condition label (`IE` / `E`) -- **use this for any published-table-facing analysis** |
+| `condition` | str | primary, as-published condition label (`IE` / `E`); **use this for any published-table-facing analysis** |
 | `condition_ra` | str or None | secondary RA-proposed overlay label; **UNRESOLVED, does not match published tables**, transparency/audit only |
 | `block_idx` | int | 0-indexed block within (subject, study, session); `-1` if not derivable (see caveat) |
 | `difficulty` | int | adaptive difficulty level for `block_idx`, from `meta.jsonl`; `-1` if not found |
@@ -537,12 +537,12 @@ lookup falls back to `difficulty = -1` => `task = visual_search`.
   `Control` labels for a handful of subjects) that is **UNRESOLVED against the
   published cohort and does not match the paper's tables** (see
   `release/dataset/attach_metadata.py`'s module docstring and `_RA_OVERRIDES`).
-  Included for transparency/auditing only -- always prefer `condition` for anything
+  Included for transparency/auditing only; always prefer `condition` for anything
   that should agree with the paper.
 
 ## `p_target` generation
 
-`p_target` is the per-fixation implicit-evidence target probability produced by the default decoder in `release/olive/decode.py` (`DefaultDecoder`), which reads per-subject parameters under `eeg_priors/`. It is `NaN` for subjects/rows without available parameters. Replace the decoder with your own — see the repository README.
+`p_target` is the per-fixation implicit-evidence target probability produced by the default decoder in `release/olive/decode.py` (`DefaultDecoder`), which reads per-subject parameters under `eeg_priors/`. It is `NaN` for subjects/rows without available parameters. Replace the decoder with your own; see the repository README.
 
 ## Coverage
 
@@ -567,7 +567,7 @@ this card). Table (subject_id x study, `total` = row sum):
 (`with_saccades=False`). Deriving them requires loading a session's raw `.p`
 eye-tracking recording (up to ~1-3GB) and joining each epoch's TFRecord-clock
 `fix_time_s` against `long_gaze.jsonl`'s LSL-clock `t_onset` by nearest-match within
-`item_id`, subject to a tolerance (default {DEFAULT_SACCADE_TOLERANCE_S}s) --
+`item_id`, subject to a tolerance (default {DEFAULT_SACCADE_TOLERANCE_S}s);
 **these two clocks are not guaranteed to share an origin**, so even with
 `with_saccades=True`, a session whose clocks do not align will legitimately yield
 all-NaN saccade fields for every epoch in that session; this is a documented
@@ -588,12 +588,12 @@ identifying information (name, contact info, raw video) is included in this expo
 
 ## License
 
-**TBD** -- placeholder: CC-BY-4.0 (pending final confirmation from the study PI /
+**TBD**: placeholder, CC-BY-4.0 (pending final confirmation from the study PI /
 IRB before public release).
 
 ## Citation
 
-**Placeholder** -- update with the final paper citation before public release:
+**Placeholder**: update with the final paper citation before public release:
 
 ```
 @inproceedings{{olive-physio-2026,

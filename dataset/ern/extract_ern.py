@@ -37,14 +37,14 @@ counts) directly with `pickle`/`numpy` (no code changes, read-only
 inspection). Result: every one of those 8 US2/US3 `.p` files has a
 `Unity.ReNa.EventMarkers` stream whose row 2 carries hundreds of nonzero
 DTN-coded shot events (DTN==1 friendly fire / error, DTN==2 enemy /
-correct), with the exact same semantics as US1 -- e.g. subject 4 us2: 141
+correct), with the exact same semantics as US1; e.g. subject 4 us2: 141
 DTN==1 + 404 DTN==2 (row2 nonzero count 545); subject 4 us3: 118 DTN==1 +
 483 DTN==2 (601); subject 20 us2: 190/388; subject 20 us3: 117/412;
 subject 28 us2: 149/416; subject 28 us3: 137/502; subject 35 us2: 57/377;
 subject 35 us3: 31/226. So the epoching logic below (already
 study-agnostic, since it only depends on `BAlert` + row-2 shot events
 loaded via `<sid>/<study>*` glob) needed no signal-processing changes to
-support `study in {"us1", "us2", "us3"}` -- only the docstring/type hints
+support `study in {"us1", "us2", "us3"}`; only the docstring/type hints
 were updated to state the extended scope explicitly.
 """
 
@@ -146,18 +146,18 @@ def iter_ern_epochs(subject_id: int, study: str = "us1") -> Iterator[dict]:
     (`Unity.ReNa.EventMarkers` row 2, DTN==1 friendly-fire/error, DTN==2
     enemy/correct) was verified to hold identically across all three
     studies (see module docstring for the per-subject counts checked), so
-    the epoching below is study-agnostic -- it just resolves the session
+    the epoching below is study-agnostic; it just resolves the session
     directory as `<sid>/<study>*` and epochs whatever row-2 events it
     finds.
 
     Each yielded dict:
       subject_id : int
       study      : str
-      session    : str            -- session .p file stem
-      eeg        : np.float32[20, ~205]  -- bandpass-filtered epoch, uV
-      label      : int            -- 1 = error (friendly fire), 0 = correct (enemy)
-      shot_time  : float          -- LSL timestamp of the shot event
-      montage    : list[str]      -- B-Alert channel names, in eeg row order
+      session    : str            : session .p file stem
+      eeg        : np.float32[20, ~205]  : bandpass-filtered epoch, uV
+      label      : int            : 1 = error (friendly fire), 0 = correct (enemy)
+      shot_time  : float          : LSL timestamp of the shot event
+      montage    : list[str]      : B-Alert channel names, in eeg row order
 
     Yields nothing (no crash) if the `.p` file or required streams
     (`BAlert`, `Unity.ReNa.EventMarkers`) are missing or malformed.

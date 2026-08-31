@@ -62,7 +62,7 @@ def run():
     cond_map_us2 = {"E": "E", "IE": "IE", "Oracle": "oracle"}
     cond_map_us3 = {"E": "E", "IE": "IE", "Oracle": "O"}
 
-    print("\nTable 5 — Post-block Trust and Reliance Ratings (US2 & US3)")
+    print("\nTable 5: Post-block Trust and Reliance Ratings (US2 & US3)")
     print("=" * 80)
 
     def per_cond(csv_path, study, cond_map):

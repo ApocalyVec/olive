@@ -9,21 +9,21 @@ task 4.1/4.2, reused as-is, never reimplemented here) with the same
 condition-metadata helper the FRP export uses, for consistency between the
 two dataset variants:
 
-    - `release.dataset.ern.extract_ern.iter_ern_epochs` -- response-locked
+    - `release.dataset.ern.extract_ern.iter_ern_epochs`: response-locked
       ERN epochs, per (subject, study)
-    - `release.dataset.attach_metadata.condition_for` -- primary,
+    - `release.dataset.attach_metadata.condition_for`: primary,
       as-published condition label (`IE` / `E`)
-    - `release.common.cohort.PUBLISHED_SUBJECTS` -- the 25-subject published
+    - `release.common.cohort.PUBLISHED_SUBJECTS`: the 25-subject published
       cohort
 
 Kept deliberately simple relative to `export_hf.py`: no saccade join, no
-`p_target` regeneration, no block/difficulty metadata -- ERN examples are
+`p_target` regeneration, no block/difficulty metadata; ERN examples are
 per-shot-event (not per-fixation), and `iter_ern_epochs` already yields a
 self-contained record (subject/study/session/eeg/label/shot_time/montage).
 
 `main()` runs the full (`PUBLISHED_SUBJECTS` x us1/us2/us3) build, which
 loads every published subject's `.p` recording per study (each up to
-~1-3GB) -- this is slow and is meant to be invoked deliberately (e.g. by a
+~1-3GB): this is slow and is meant to be invoked deliberately (e.g. by a
 release-build controller), not as a side effect of importing this module.
 `--subjects`/`--studies`/`--limit` let a caller run a smaller/faster build
 (e.g. for a smoke test).
@@ -81,7 +81,7 @@ def build_ern_examples(
     field.
 
     `limit`, if given, caps the *total* number of examples returned across
-    the whole (subjects x studies) sweep (not per subject/study) -- meant
+    the whole (subjects x studies) sweep (not per subject/study); meant
     for fast/small builds, e.g. tests.
 
     Never raises for a subject/study with no data: `iter_ern_epochs` already
@@ -252,7 +252,7 @@ def _ern_section_text(
 
 A second HuggingFace config (`ern`), loadable via
 `load_dataset("ApocalyVec/olive-physio", "ern")`, of per-shot response-locked
-ERN (error-related negativity) epochs -- distinct from the fixation-locked
+ERN (error-related negativity) epochs, distinct from the fixation-locked
 FRP epochs in the `default` config above.
 
 ### What this is
@@ -274,7 +274,7 @@ correct/error.
 | `label` | int (0/1) | `0` = correct (enemy hit), `1` = error (friendly-fire hit) |
 | `shot_time` | float | LSL timestamp of the shot event |
 | `montage` | list[str] | B-Alert channel names, in `eeg` row order |
-| `condition` | str | primary, as-published condition label (`IE` / `E`), same as the `default` config's `condition` field -- **use this for any published-table-facing analysis** |
+| `condition` | str | primary, as-published condition label (`IE` / `E`), same as the `default` config's `condition` field; **use this for any published-table-facing analysis** |
 
 ### Epoch window and filtering
 
@@ -288,7 +288,7 @@ correct/error.
   {ERN_FILTER_LO_HZ} Hz high-pass, which needs several seconds of settling).
 - **Baseline window**: `[{ERN_BASELINE_MS[0]}, {ERN_BASELINE_MS[1]}]` ms (pre-response) is the
   conventional ERN baseline period included in the epoch; the exported `eeg`
-  array is the filtered epoch as-is and is **not baseline-corrected** --
+  array is the filtered epoch as-is and is **not baseline-corrected**;
   apply baseline correction (subtract the `[{ERN_BASELINE_MS[0]}, {ERN_BASELINE_MS[1]}]` ms mean per
   channel) yourself if your analysis requires it.
 - **Label convention**: shot events come from `Unity.ReNa.EventMarkers` row
@@ -301,7 +301,7 @@ correct/error.
 
 Available for all three studies: US1 (offline simulation), US2 (live
 deployment), US3 (silent target-switch). Coverage varies by
-subject/study -- some subjects have zero epochs in a given study (no
+subject/study; some subjects have zero epochs in a given study (no
 session recorded, or no `.p` file with usable shot events); see the
 coverage table below and `{coverage_csv_path.name}` (same directory as this
 card) for exact per-subject counts.

@@ -5,7 +5,7 @@ Reproduces Table 3 (US2 early-vs-late target throughput delta) from logged poste
 Wraps analysis/repro/within_session_delta.py via subprocess.
 
 NOTE: The cohort CSV is us2_blockStats_set4.csv (n=13/10/13/8), but the paper prints
-cohort sizes as n=12/10/12/8 from set3 — a disclosed labeling difference documented
+cohort sizes as n=12/10/12/8 from set3, a disclosed labeling difference documented
 in the wrapper to prevent silent drift. See release/REPRODUCE.md § 'US2 Within-Session
 Throughput Delta (Table 3) Reproduction'.
 
@@ -56,7 +56,7 @@ def run():
             "This wrapper reproduces Table 3 by invoking an analysis script from "
             f"the main OLIVE research repo ({GENERATOR}), which is not part of "
             "this self-contained release and must be present separately on disk "
-            "at that path relative to the repo root (it is not vendored here -- "
+            "at that path relative to the repo root (it is not vendored here; "
             "see release/README.md's Requirements section and release/REPRODUCE.md "
             "§ 'US2 Within-Session Throughput Delta (Table 3) Reproduction')."
         )

@@ -10,7 +10,7 @@ us3_skill_mod.py has NO --drop flag: it consumes the full blockStats CSV as
 given. To apply the Table 8 drop cohort, this wrapper writes a FILTERED COPY
 of the set3 US3 CSV (with the dropped OLIVE-IE participant rows removed) to a
 temp file, then invokes the existing generator against that filtered copy. It
-does NOT reimplement the correlation / regression statistics -- those live
+does NOT reimplement the correlation / regression statistics; those live
 entirely in us3_skill_mod.py.
 
 Drop cohort, forensically verified against the published paper cells:
@@ -18,7 +18,7 @@ Drop cohort, forensically verified against the published paper cells:
 Control, OLIVE-E, and Oracle are UNCHANGED (full set3 cohort for those
 conditions).
 
-Note this differs from Table 7's OLIVE-IE drop ({37, 39, 46, 55}) -- both are
+Note this differs from Table 7's OLIVE-IE drop ({37, 39, 46, 55}); both are
 disclosed drop sets used for different tables; they are NOT the same cohort.
 Confirmed against paper commit 24f904d.
 
@@ -94,7 +94,7 @@ def run():
             "This wrapper reproduces Table 8 by invoking an analysis script from "
             f"the main OLIVE research repo ({GENERATOR}), which is not part of "
             "this self-contained release and must be present separately on disk "
-            "at that path relative to the repo root (it is not vendored here -- "
+            "at that path relative to the repo root (it is not vendored here; "
             "see release/README.md's Requirements section and release/REPRODUCE.md "
             "§ 'US3 Skill Moderation (Table 8) Reproduction')."
         )
