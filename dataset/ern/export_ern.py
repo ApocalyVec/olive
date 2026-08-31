@@ -251,7 +251,7 @@ def _ern_section_text(
 {_ERN_SECTION_HEADER}
 
 A second HuggingFace config (`ern`), loadable via
-`load_dataset("ApocalyVec/olive-frp", "ern")`, of per-shot response-locked
+`load_dataset("ApocalyVec/olive-physio", "ern")`, of per-shot response-locked
 ERN (error-related negativity) epochs -- distinct from the fixation-locked
 FRP epochs in the `default` config above.
 

@@ -1,5 +1,5 @@
 ---
-pretty_name: OLIVE FRP Dataset
+pretty_name: OLIVE Physiological Dataset (EEG + Pupil)
 license: cc-by-4.0
 tags:
 - eeg
@@ -22,7 +22,7 @@ configs:
     path: data/ern.parquet
 ---
 
-# OLIVE FRP Dataset
+# OLIVE Physiological Dataset (EEG + Pupil, FRP + ERN)
 
 ## What this is
 
@@ -171,7 +171,7 @@ IRB before public release).
 **Placeholder** -- update with the final paper citation before public release:
 
 ```
-@inproceedings{olive-frp-2026,
+@inproceedings{olive-physio-2026,
   title     = {OLIVE: [paper title TBD]},
   author    = {[authors TBD]},
   booktitle = {[venue TBD]},
@@ -182,7 +182,7 @@ IRB before public release).
 ## ERN variant
 
 A second HuggingFace config (`ern`), loadable via
-`load_dataset("ApocalyVec/olive-frp", "ern")`, of per-shot response-locked
+`load_dataset("ApocalyVec/olive-physio", "ern")`, of per-shot response-locked
 ERN (error-related negativity) epochs -- distinct from the fixation-locked
 FRP epochs in the `default` config above.
 

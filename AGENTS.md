@@ -68,4 +68,4 @@ Run everything as `PYTHONPATH=. python …` from the repo root.
 ## Data availability / provenance
 
 The paper describes the studies and the implicit-evidence channel; this repo does not
-duplicate that. See the paper and the HuggingFace dataset card (`ApocalyVec/olive-frp`).
+duplicate that. See the paper and the HuggingFace dataset card (`ApocalyVec/olive-physio`).

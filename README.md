@@ -2,12 +2,12 @@
 
 # 🫒 OLIVE
 
-### Adapt a foundation model to your task, in real time, from your **brain signals** and behavior.
+### Adapt a foundation model to whatever you're doing — in real time, from your **brain signals** and behavior.
 
 Ziheng "Leo" Li\* · Xichen He\* · Haoyan Chen\* · Charlie Zou\* · Sheng Bai · Benjamin Yang · Mengyuan Wu · Jake Ledner · Yi-Jie Cheng · Akito Yamauchi · Dishita G. Turakhia · Steven Feiner · Paul Sajda
 
 [![Paper](https://img.shields.io/badge/Paper-UIST%202026-b31b1b.svg)](#citation)
-[![Dataset](https://img.shields.io/badge/🤗%20Dataset-olive--frp-yellow.svg)](https://huggingface.co/datasets/ApocalyVec/olive-frp)
+[![Dataset](https://img.shields.io/badge/🤗%20Dataset-olive--physio-yellow.svg)](https://huggingface.co/datasets/ApocalyVec/olive-physio)
 [![Python](https://img.shields.io/badge/python-3.10-blue.svg)](#installation)
 [![License](https://img.shields.io/badge/license-see%20LICENSE-green.svg)](LICENSE)
 
@@ -99,12 +99,12 @@ PYTHONPATH=. python -m reproduce.us1_convergence outputs/us1/secondStats.csv
 
 ## 🤗 Dataset
 
-Two configs on the [**Hugging Face dataset**](https://huggingface.co/datasets/ApocalyVec/olive-frp):
+Two configs on the [**Hugging Face dataset**](https://huggingface.co/datasets/ApocalyVec/olive-physio):
 
 ```python
 from datasets import load_dataset
-frp = load_dataset("ApocalyVec/olive-frp", "default")  # fixation-locked FRP epochs
-ern = load_dataset("ApocalyVec/olive-frp", "ern")      # response-locked ERN epochs
+frp = load_dataset("ApocalyVec/olive-physio", "default")  # fixation-locked FRP epochs
+ern = load_dataset("ApocalyVec/olive-physio", "ern")      # response-locked ERN epochs
 ```
 
 - **`default`** — per-fixation EEG (20 ch, [-0.1, 0.8] s) + pupil epochs, target label (`y==1`=target), a per-block `task` field, condition/block metadata, and a per-fixation implicit-evidence `p_target` (US2/US3). 25 subjects.

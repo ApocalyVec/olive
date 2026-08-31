@@ -1,14 +1,14 @@
 # Working with agents — OLIVE FRP dataset
 
-Orientation for an AI agent using this HuggingFace dataset (`ApocalyVec/olive-frp`).
+Orientation for an AI agent using this HuggingFace dataset (`ApocalyVec/olive-physio`).
 See `README.md` (the dataset card) for full field docs.
 
 ## Load it
 
 ```python
 from datasets import load_dataset
-frp = load_dataset("ApocalyVec/olive-frp", "default")   # fixation-locked FRP epochs
-ern = load_dataset("ApocalyVec/olive-frp", "ern")       # response-locked ERN epochs
+frp = load_dataset("ApocalyVec/olive-physio", "default")   # fixation-locked FRP epochs
+ern = load_dataset("ApocalyVec/olive-physio", "ern")       # response-locked ERN epochs
 ```
 
 Two configs: **`default`** (`data/frp_dataset.parquet`) and **`ern`** (`data/ern.parquet`).

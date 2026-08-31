@@ -596,7 +596,7 @@ IRB before public release).
 **Placeholder** -- update with the final paper citation before public release:
 
 ```
-@inproceedings{{olive-frp-2026,
+@inproceedings{{olive-physio-2026,
   title     = {{OLIVE: [paper title TBD]}},
   author    = {{[authors TBD]}},
   booktitle = {{[venue TBD]}},
